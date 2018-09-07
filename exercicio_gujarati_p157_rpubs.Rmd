@@ -1,0 +1,132 @@
+---
+title: "Econometria: exercício 5.14, demanda de moeda, Gujarati e Porter (2011, p.157)"
+author: "Adriano Marcos Rodrigues Figueiredo"
+e-mail: "adriano.figueiredo@ufms.br"
+abstract: 
+  We analyse different money supply concepts and its relation to the GDP. The example is draw following Gujarati and Porter (2011, p.157). 
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+bibliography: mybibfile.bib
+output:
+  html_document:
+    number_sections: true
+    toc: yes
+    toc_float: yes
+---
+
+This work is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/).
+
+![License: CC BY-SA 4.0](cc_by_sa.png)
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Primeiros passos
+
+Os primeiros passos são criar ou abrir um diretório de trabalho. Se optar por criar um novo projeto, haverá a possibilidade de criar em uma pasta vazia. Em seguida, sugere-se que coloque os dados nesta pasta, se possível em um arquivo MS Excel e chame a planilha de 'dados'.Neste caso, a planilha chama-se *Tabela 5.6aula_gujarati 5ed p157.xlsx*.
+
+> A Tabela 5.6 apresenta dados sobre o PNB e quatro definições do estoque de moeda dos Estados Unidos no período 1970-1983. Fazendo as regressões do PNB contra as várias definições de moeda, obtemos os resultados apresentados na Tabela 5.7. Os monetaristas ou adeptos da teoria quantitativa afirmam que a renda nominal (o PNB nominal) é determinada, em grande parte, pela variação na quantidade ou estoque de moeda, embora não haja consenso quanto à definição “certa” de moeda. De acordo com os resultados, responda às seguintes perguntas:   
+> a.  Que definição de moeda parece apresentar relação mais estreita com o PNB nominal?   
+> b.  Como os $R^2$ são todos elevados, isso significa que a escolha da definição de moeda não tem importância?   
+> c.  Se o FED (Banco Central dos Estados Unidos) quer controlar a oferta de moeda, qual desses indicadores de moeda seria o melhor objetivo para esse fim? Isso pode ser dito com base nos resultados da regressão?   
+
+Exercício para os dados da tabela 5.6, conforme Gujarati (2011, p.157), PNB	e	estoque	de	moeda	segundo	quatro	critérios,	Estados	Unidos,	1970-1983.
+
+```{r, echo=FALSE}
+# include this code chunk as-is to set options
+knitr::opts_chunk$set(comment=NA, prompt=TRUE, out.width=750, fig.height=8, fig.width=8)
+```
+```{r}
+library(readxl); library(foreign)
+dados <- read_excel("Tabela 5.6aula_gujarati 5ed p157.xlsx", 
+                                 sheet = "dados")
+attach(dados)
+```
+
+A opção do github pode ser obtida em:
+```{r, eval=FALSE}
+library(curl)
+githubURL <- ("https://github.com/amrofi/Gujarati-and-Porter-dataset/blob/files/table5-6.wf1.rds")
+download.file(githubURL,"table5-6.wf1.rds", method="curl")
+`table5-6.wf1` <- readRDS("table5-6.wf1.rds")
+```
+
+Vamos ver como está a tabela importada:
+
+```{r}
+library(knitr)
+kable(dados,caption="Dados da tabela 5.6")
+
+```
+
+# Resultados 
+
+## Estimação
+
+Vamos estimar o modelo linear multipla fazendo as regressoes do PNB contra as varias definicoes de moeda.
+
+```{r }
+EQ1<-lm(PNB~M1)
+EQ2<-lm(PNB~M2)
+EQ3<-lm(PNB~M3)
+EQ4<-lm(PNB~L)
+```
+
+## Saída gráfica
+
+```{r, echo=FALSE}
+#PLOTANDO RESULTADOS
+
+split.screen(c(2,2))
+scatter1<-plot(PNB~M1)
+abline(EQ1)
+screen(2)
+scatter2<-plot(PNB~M2)
+abline(EQ2)
+screen(3)
+scatter3<-plot(PNB~M3)
+abline(EQ3)
+screen(4)
+scatter4<-plot(PNB~L)
+abline(EQ4)
+```
+
+## Saída tabular
+
+Vamos utilizar o pacote *stargazer* para organizar as saídas de resultados. Se a saída fosse apenas pelo comando *summary*, sairia da forma:
+   
+```{r}
+summary(EQ1)
+```
+
+Agora, criando uma tabela com as várias saídas de modelos, com o pacote *stargazer* tem-se:
+
+```{r , echo=FALSE}
+
+library(stargazer)
+resultados<-stargazer(list(EQ1,EQ2,EQ3,EQ4),type="text",style=("all"),omit.stat = ("f"),rownames = NULL)
+
+```
+
+Vou usar o pacote `effects` para ver os efeitos de cada uma:
+
+```{r}
+library(effects)
+# usando o pacote effects
+alleff1 <- allEffects(EQ1)
+plot(alleff1)
+summary(alleff1)
+
+alleff2 <- allEffects(EQ2)
+plot(alleff2)
+summary(alleff2)
+
+alleff3 <- allEffects(EQ3)
+plot(alleff3)
+summary(alleff3)
+
+alleff4 <- allEffects(EQ4)
+plot(alleff4)
+summary(alleff4)
+```
